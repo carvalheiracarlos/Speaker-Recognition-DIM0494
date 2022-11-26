@@ -4,6 +4,7 @@ from trainers.simple_mnist_trainer import SimpleMnistModelTrainer
 from utils.config import process_config
 from utils.dirs import create_dirs
 from utils.utils import get_args
+import tensorflow as tf
 
 def main():
     # capture the config path from the run arguments
@@ -29,13 +30,14 @@ def main():
     model = SimpleMnistModel(config)
 
     print('Create the trainer')
-    trainer = SimpleMnistModelTrainer(model.model, 
-                                      data_loader.get_images_from_directory(), 
-                                      config
-                                    )
+    with tf.device('/device:GPU:0') as sess:
+        trainer = SimpleMnistModelTrainer(model.model, 
+                                        data_loader.get_images_from_directory(), 
+                                        config
+                                        )
 
-    print('Start training the model.')
-    trainer.train()
+        print('Start training the model.')
+        trainer.train()
 
 if __name__ == '__main__':
     main()
