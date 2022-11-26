@@ -10,9 +10,9 @@ class SimpleMnistModel(BaseModel):
 
     def build_model(self):
         self.model = Sequential()
-        self.model.add(Dense(32, activation='relu', input_shape=(28 * 28,)))
+        self.model.add(Dense(32, activation='relu', input_shape=(640 * 480,3)))
         self.model.add(Dense(16, activation='relu'))
-        self.model.add(Dense(10, activation='softmax'))
+        self.model.add(Dense(90, activation='softmax'))
 
         self.model.compile(
             loss='sparse_categorical_crossentropy',

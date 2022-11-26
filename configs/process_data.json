@@ -2,6 +2,8 @@
     "location": {
         "root_folder": "./data/",
         "train": "./data/train.csv",
+        "train_images": "./data/images/train",
+        "images": "./data/images/",
         "train_processed": "./data/Train.csv",
         "test": "./data/test.csv"
     }

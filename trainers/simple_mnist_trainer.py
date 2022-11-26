@@ -41,11 +41,10 @@ class SimpleMnistModelTrainer(BaseTrain):
         '''
     def train(self):
         history = self.model.fit(
-            self.data[0], self.data[1],
+            self.data,
             epochs=self.config.trainer.num_epochs,
             verbose=self.config.trainer.verbose_training,
             batch_size=self.config.trainer.batch_size,
-            validation_split=self.config.trainer.validation_split,
         )
         self.loss.extend(history.history['loss'])
         self.acc.extend(history.history['acc'])

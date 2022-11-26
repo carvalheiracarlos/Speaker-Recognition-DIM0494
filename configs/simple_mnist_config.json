@@ -2,8 +2,9 @@
   "exp": {
     "name": "simple_mnist"
   },
-  "data_location": {
-    "train": "./data/Train.csv"
+  "location": {
+    "train": "./data/train.csv",
+    "images": "./data/images/"
   },
   "model":{
     "learning_rate": 0.001,

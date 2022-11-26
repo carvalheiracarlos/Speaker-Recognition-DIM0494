@@ -25,16 +25,17 @@ def main():
         print('Generating Train and Test Sets...')
         data_loader.generate_spectrograms()
 
-
     print('Create the model.')
     model = SimpleMnistModel(config)
 
     print('Create the trainer')
-    trainer = SimpleMnistModelTrainer(model.model, data_loader.get_train_data(), config)
+    trainer = SimpleMnistModelTrainer(model.model, 
+                                      data_loader.get_images_from_directory(), 
+                                      config
+                                    )
 
     print('Start training the model.')
     trainer.train()
-
 
 if __name__ == '__main__':
     main()
