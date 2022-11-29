@@ -31,20 +31,12 @@ class SimpleMnistModelTrainer(BaseTrain):
                 write_graph=self.config.callbacks.tensorboard_write_graph,
             )
         )
-        '''
-        if hasattr(self.config,"comet_api_key"):
-            from comet_ml import Experiment
-            experiment = Experiment(api_key=self.config.comet_api_key, project_name=self.config.exp_name)
-            experiment.disable_mp()
-            experiment.log_parameters(self.config)
-            self.callbacks.append(experiment.get_keras_callback())
-        '''
+
     def train(self):
         history = self.model.fit(
             self.data,
             epochs=self.config.trainer.num_epochs,
             verbose=self.config.trainer.verbose_training,
-            batch_size=self.config.trainer.batch_size,
         )
         self.loss.extend(history.history['loss'])
         self.acc.extend(history.history['acc'])

@@ -15,5 +15,10 @@ def get_args():
         help='Generate',
         action='store_true'
     )
+    argparser.add_argument(
+        '-n', '--convert',
+        help='Convert',
+        action='store_true'
+    )
     args = argparser.parse_args()
     return args

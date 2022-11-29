@@ -3,8 +3,10 @@
     "name": "simple_mnist"
   },
   "location": {
+    "root_folder": "./data/",
     "train": "./data/train.csv",
-    "images": "./data/images/"
+    "images": "./data/images/",
+    "audios": "./data/data/"
   },
   "model":{
     "learning_rate": 0.001,
@@ -12,7 +14,7 @@
   },
   "trainer":{
     "num_epochs": 20,
-    "batch_size": 512,
+    "batch_size": 32,
     "validation_split":0.25,
     "verbose_training": true
   },

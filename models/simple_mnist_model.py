@@ -10,13 +10,12 @@ class SimpleMnistModel(BaseModel):
 
     def build_model(self):
         self.model = Sequential()
-        input_Shape = (640, 480, 3)
     
         self.model.add(Conv2D(filters=128, 
-                         kernel_size=(10,10),
-                         strides=(2,2),
+                         kernel_size=(5,5),
+                         strides=(1,1),
                          activation='relu', 
-                         input_shape=input_Shape))
+                         input_shape=(1491, 257, 1)))
         self.model.add(BatchNormalization())
         self.model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
         self.model.add(Dropout(0.5))
