@@ -3,9 +3,9 @@ import os
 from keras.callbacks import ModelCheckpoint, TensorBoard
 
 
-class SimpleMnistModelTrainer(BaseTrain):
-    def __init__(self, model, data, config):
-        super(SimpleMnistModelTrainer, self).__init__(model, data, config)
+class SpeakerConv2DModelTrainer(BaseTrain):
+    def __init__(self, model, train_dataset, validation_dataset, config):
+        super(SpeakerConv2DModelTrainer, self).__init__(model, train_dataset, validation_dataset, config)
         self.callbacks = []
         self.loss = []
         self.acc = []
@@ -33,15 +33,13 @@ class SimpleMnistModelTrainer(BaseTrain):
         )
 
     def train(self):
-        data = self.data.cache()
-        data = data.shuffle(buffer_size=1000)
-        data = data.batch(self.config.trainer.batch_size)
-        history = self.model.fit(
-            data,
-            epochs=self.config.trainer.num_epochs,
-            verbose=self.config.trainer.verbose_training,
-        )
-        self.loss.extend(history.history['loss'])
-        self.acc.extend(history.history['categorical_accuracy'])
-        self.val_loss.extend(history.history['val_loss'])
-        self.val_acc.extend(history.history['val_categorical_accuracy'])
+        self.model.summary()
+        history = self.model.fit(self.train_dataset,
+                                 validation_data=self.validation_dataset,
+                                 epochs=self.config.trainer.num_epochs,
+                                 verbose=self.config.trainer.verbose_training,
+                            )
+        #self.loss.extend(history.history['loss'])
+        #self.acc.extend(history.history['categorical_accuracy'])
+        #self.val_loss.extend(history.history['val_loss'])
+        #self.val_acc.extend(history.history['val_categorical_accuracy'])

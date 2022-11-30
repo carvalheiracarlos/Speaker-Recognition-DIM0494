@@ -10,7 +10,8 @@
   },
   "model":{
     "learning_rate": 0.001,
-    "optimizer": "adam"
+    "optimizer": "adam",
+    "loss": "sparse_categorical_crossentropy"
   },
   "trainer":{
     "num_epochs": 20,

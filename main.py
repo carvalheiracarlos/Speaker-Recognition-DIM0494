@@ -1,6 +1,6 @@
 from data_loader.speaker_data_loader import SpeakerDataLoader
-from models.simple_mnist_model import SimpleMnistModel
-from trainers.simple_mnist_trainer import SimpleMnistModelTrainer
+from models.sequential_conv2d_model import SpeakerConv2D
+from trainers.sequential_conv2d_trainer import SpeakerConv2DModelTrainer 
 from utils.config import process_config
 from utils.dirs import create_dirs
 from utils.utils import get_args
@@ -27,16 +27,15 @@ def main():
     data_loader.process_dataset()
     data_loader.dataset_snapshot()
 
-    '''
+    data_shapes = data_loader.get_shapes()
     print('Create the model.')
-    model = SimpleMnistModel(config)
+    speaker_conv2d = SpeakerConv2D(config, data_shapes[0], data_shapes[1])
+    
     print('Create the trainer')
-    trainer = SimpleMnistModelTrainer(model.model, 
-                                      train,
-                                      config
-                                    )
+    speaker_conv2d_trainer = SpeakerConv2DModelTrainer(speaker_conv2d.model, data_loader.get_train_dataset(), data_loader.get_validation_dataset(), config)
     print('Start training the model.')
-    trainer.train()
-    '''
+    speaker_conv2d_trainer.train()
+
+
 if __name__ == '__main__':
     main()

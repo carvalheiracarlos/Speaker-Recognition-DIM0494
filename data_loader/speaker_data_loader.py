@@ -54,11 +54,24 @@ class SpeakerDataLoader(BaseDataLoader):
         self.test_spectrograms = self.convert_dataset_to_spectrogram(self.test)
 
     def dataset_snapshot(self):
-        for spectrogram, label in self.train_spectrograms.take(1):
+        for spectrogram, labels in self.train_spectrograms.take(1):
             print(f'Converted Dataset Spectrogram Shape........:{spectrogram[1].shape}')
-            print(f'Converted Dataset Labels Shape(Batch Size, None)........:{spectrogram[1].shape}')
+            print(f'Converted Dataset Labels Shape(Batch Size, None)........:{labels.shape}')
             break
+
+    def get_train_dataset(self):
+        return self.train_spectrograms.cache().shuffle(10000).prefetch(tf.data.AUTOTUNE)
     
+    def get_validation_dataset(self):
+        return self.validation_spectrograms.cache().prefetch(tf.data.AUTOTUNE)
+
+    def get_test_dataset(self):
+        return self.test_spectrograms.cache().prefetch(tf.data.AUTOTUNE)
+    
+    def get_shapes(self):
+        for spectrogram, label in self.train_spectrograms.take(1):
+            return (spectrogram[1].shape, label.shape[0])
+
     def load_dataset(self):
         self.train, validation = tf.keras.utils.audio_dataset_from_directory(f'{self.config.location.audios}',
                                                                              label_mode='int', 
