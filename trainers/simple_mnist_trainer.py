@@ -33,12 +33,15 @@ class SimpleMnistModelTrainer(BaseTrain):
         )
 
     def train(self):
+        data = self.data.cache()
+        data = data.shuffle(buffer_size=1000)
+        data = data.batch(self.config.trainer.batch_size)
         history = self.model.fit(
-            self.data,
+            data,
             epochs=self.config.trainer.num_epochs,
             verbose=self.config.trainer.verbose_training,
         )
         self.loss.extend(history.history['loss'])
-        self.acc.extend(history.history['acc'])
+        self.acc.extend(history.history['categorical_accuracy'])
         self.val_loss.extend(history.history['val_loss'])
-        self.val_acc.extend(history.history['val_acc'])
+        self.val_acc.extend(history.history['val_categorical_accuracy'])
