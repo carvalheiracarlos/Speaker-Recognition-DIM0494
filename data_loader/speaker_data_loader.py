@@ -55,7 +55,8 @@ class SpeakerDataLoader(BaseDataLoader):
 
     def dataset_snapshot(self):
         for spectrogram, label in self.train_spectrograms.take(1):
-            print(spectrogram[1].shape, label.shape)
+            print(f'Converted Dataset Spectrogram Shape........:{spectrogram[1].shape}')
+            print(f'Converted Dataset Labels Shape(Batch Size, None)........:{spectrogram[1].shape}')
             break
     
     def load_dataset(self):
