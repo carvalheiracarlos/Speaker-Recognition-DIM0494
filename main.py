@@ -24,6 +24,8 @@ def main():
     data_loader.inspect_dataset()
     data_loader.squeeze_datasets()
     data_loader.inspect_spectrgoram()
+    data_loader.process_dataset()
+    data_loader.dataset_snapshot()
 
     '''
     print('Create the model.')

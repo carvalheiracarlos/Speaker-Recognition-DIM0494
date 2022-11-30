@@ -8,8 +8,13 @@ from base.base_data_loader import BaseDataLoader
 class SpeakerDataLoader(BaseDataLoader):
     def __init__(self, config):
         super(SpeakerDataLoader, self).__init__(config)
+        self.labels_names = []
         self.train = tf.data.Dataset.from_tensor_slices([]) 
+        self.train_spectrograms = tf.data.Dataset.from_tensor_slices([]) 
         self.validation = tf.data.Dataset.from_tensor_slices([])
+        self.validation_spectrograms = tf.data.Dataset.from_tensor_slices([])
+        self.test = tf.data.Dataset.from_tensor_slices([])
+        self.test_spectrograms = tf.data.Dataset.from_tensor_slices([])
 
     def squeeze(self, audio, labels):
         audio = tf.squeeze(audio, axis=-1)
@@ -27,20 +32,42 @@ class SpeakerDataLoader(BaseDataLoader):
 
     def inspect_spectrgoram(self):
         for audio, labels in self.train.take(1):  
-            print(audio.shape)
-            print(labels.shape)
+            spectrogram = self.get_spectrogram(audio[1])
+            print(f'Label Value................................: {self.labels_names[labels[1]]}')
+            print(f'Label Shape(Batch Size, None)..............: {labels.shape}')
+            print(f'Audio Shape(Batch Size, Max SampleRate)....: {audio.shape}')
+            print(f'Inspectrogram Shape........................: {spectrogram.shape}')
 
     def inspect_dataset(self):
         print('...........Audio Dataset..........')
-        print(f'Classes Names.....: \n{np.array(self.train.class_names)}')
+        print(f'Classes Names.....: \n{self.labels_names}')
         print(f'Element Inpect....: \n{self.train.element_spec}')
 
+    def convert_dataset_to_spectrogram(self, dataset):
+        return dataset.map(map_func = lambda audio, label: (self.get_spectrogram(audio), label),
+                           num_parallel_calls=tf.data.AUTOTUNE
+                        )
+    
+    def process_dataset(self):
+        self.train_spectrograms = self.convert_dataset_to_spectrogram(self.train)
+        self.validation_spectrograms = self.convert_dataset_to_spectrogram(self.validation)
+        self.test_spectrograms = self.convert_dataset_to_spectrogram(self.test)
+
+    def dataset_snapshot(self):
+        for spectrogram, label in self.train_spectrograms.take(1):
+            print(spectrogram[1].shape, label.shape)
+            break
+    
     def load_dataset(self):
-        self.train, self.validation = tf.keras.utils.audio_dataset_from_directory(f'{self.config.location.audios}',
-                                                                                 label_mode='int', 
-                                                                                 output_sequence_length=16000,
-                                                                                 batch_size=self.config.trainer.batch_size,
-                                                                                 validation_split=0.2,
-                                                                                 seed=42,
-                                                                                 subset='both',
-                                                                                 ) 
+        self.train, validation = tf.keras.utils.audio_dataset_from_directory(f'{self.config.location.audios}',
+                                                                             label_mode='int', 
+                                                                             output_sequence_length=16000,
+                                                                             batch_size=self.config.trainer.batch_size,
+                                                                             validation_split=0.2,
+                                                                             seed=42,
+                                                                             subset='both',
+                                                                        ) 
+        
+        self.test = validation.shard(num_shards=2, index=0)
+        self.validation = validation.shard(num_shards=2, index=1)
+        self.labels_names = np.array(self.train.class_names)
