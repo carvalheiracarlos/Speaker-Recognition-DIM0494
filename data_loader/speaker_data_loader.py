@@ -33,8 +33,8 @@ class SpeakerDataLoader(BaseDataLoader):
     def inspect_spectrgoram(self):
         for audio, labels in self.train.take(1):  
             spectrogram = self.get_spectrogram(audio[1])
-            print(f'Label Value................................: {self.labels_names[labels[1]]}')
-            print(f'Label Shape(Batch Size, None)..............: {labels.shape}')
+            print(f'Label Value................................: {labels[1]}')
+            print(f'Label Shape(Batch Size, N_Labels)..............: {labels.shape}')
             print(f'Audio Shape(Batch Size, Max SampleRate)....: {audio.shape}')
             print(f'Inspectrogram Shape........................: {spectrogram.shape}')
 
@@ -56,7 +56,7 @@ class SpeakerDataLoader(BaseDataLoader):
     def dataset_snapshot(self):
         for spectrogram, labels in self.train_spectrograms.take(1):
             print(f'Converted Dataset Spectrogram Shape........:{spectrogram[1].shape}')
-            print(f'Converted Dataset Labels Shape(Batch Size, None)........:{labels.shape}')
+            print(f'Converted Dataset Labels Shape(Batch Size, N_Labels)........:{labels.shape}')
             break
 
     def get_train_dataset(self):
@@ -70,11 +70,11 @@ class SpeakerDataLoader(BaseDataLoader):
     
     def get_shapes(self):
         for spectrogram, label in self.train_spectrograms.take(1):
-            return (spectrogram[1].shape, label.shape[0])
+            return (spectrogram[1].shape, label.shape)
 
     def load_dataset(self):
         self.train, validation = tf.keras.utils.audio_dataset_from_directory(f'{self.config.location.audios}',
-                                                                             label_mode='int', 
+                                                                             label_mode='categorical', 
                                                                              output_sequence_length=16000,
                                                                              batch_size=self.config.trainer.batch_size,
                                                                              validation_split=0.2,

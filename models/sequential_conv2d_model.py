@@ -14,8 +14,6 @@ class SpeakerConv2D(BaseModel):
         self.build_model()
 
     def build_model(self):
-        #print(self.input_shape)
-        print(self.n_labels)
 
         self.model = Sequential()
         self.model.add(Input(shape=self.input_shape))
@@ -26,7 +24,7 @@ class SpeakerConv2D(BaseModel):
         self.model.add(Flatten())
         self.model.add(Dense(128, activation='relu'))
         self.model.add(Dropout(0.25))
-        self.model.add(Dense(self.n_labels))
+        self.model.add(Dense(self.n_labels[1], activation='softmax'))
 
         self.model.compile(
             loss=self.config.model.loss,

@@ -1,6 +1,10 @@
 from base.base_trainer import BaseTrain
 import os
-from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.callbacks import ( 
+    ModelCheckpoint, 
+    TensorBoard, 
+    CSVLogger 
+)
 
 
 class SpeakerConv2DModelTrainer(BaseTrain):
@@ -32,14 +36,19 @@ class SpeakerConv2DModelTrainer(BaseTrain):
             )
         )
 
+        self.callbacks.append(
+            CSVLogger(filename=self.config.callbacks.csv_logger, separator=",", append=False)
+        )
+
     def train(self):
         self.model.summary()
         history = self.model.fit(self.train_dataset,
                                  validation_data=self.validation_dataset,
                                  epochs=self.config.trainer.num_epochs,
                                  verbose=self.config.trainer.verbose_training,
+                                 callbacks=self.callbacks,
                             )
-        #self.loss.extend(history.history['loss'])
-        #self.acc.extend(history.history['categorical_accuracy'])
-        #self.val_loss.extend(history.history['val_loss'])
-        #self.val_acc.extend(history.history['val_categorical_accuracy'])
+        self.loss.extend(history.history['loss'])
+        self.acc.extend(history.history['categorical_accuracy'])
+        self.val_loss.extend(history.history['val_loss'])
+        self.val_acc.extend(history.history['val_categorical_accuracy'])
