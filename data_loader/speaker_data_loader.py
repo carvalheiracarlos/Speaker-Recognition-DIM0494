@@ -20,10 +20,6 @@ class SpeakerDataLoader(BaseDataLoader):
         audio = tf.squeeze(audio, axis=-1)
         return audio, labels
     
-    def squeeze_datasets(self):
-        self.train = self.train.map(self.squeeze, tf.data.AUTOTUNE)
-        self.validation= self.validation.map(self.squeeze, tf.data.AUTOTUNE)
-
     def get_spectrogram(self, waveform):
         spectrogram = tf.signal.stft(waveform, frame_length=255, frame_step=128)
         spectrogram = tf.abs(spectrogram)
@@ -54,10 +50,9 @@ class SpeakerDataLoader(BaseDataLoader):
         self.test_spectrograms = self.convert_dataset_to_spectrogram(self.test)
 
     def dataset_snapshot(self):
-        for spectrogram, labels in self.train_spectrograms.take(1):
-            print(f'Converted Dataset Spectrogram Shape........:{spectrogram[1].shape}')
-            print(f'Converted Dataset Labels Shape(Batch Size, N_Labels)........:{labels.shape}')
-            break
+        print('Train Dataset................(Shapes and Length):', self.train_spectrograms.take(1), self.train_spectrograms.cardinality().numpy())
+        print('Validation Dataset...........(Shapes and Length):', self.validation_spectrograms.take(1), self.validation_spectrograms.cardinality().numpy())
+        print('Test Dataset.................(Shapes and Length):', self.test_spectrograms.take(1), self.test_spectrograms.cardinality().numpy())
 
     def get_train_dataset(self):
         return self.train_spectrograms.cache().shuffle(10000).prefetch(tf.data.AUTOTUNE)
@@ -73,15 +68,19 @@ class SpeakerDataLoader(BaseDataLoader):
             return (spectrogram[1].shape, label.shape)
 
     def load_dataset(self):
-        self.train, validation = tf.keras.utils.audio_dataset_from_directory(f'{self.config.location.audios}',
+        self.train, self.validation = tf.keras.utils.audio_dataset_from_directory(f'{self.config.location.audios}',
                                                                              label_mode='categorical', 
                                                                              output_sequence_length=16000,
                                                                              batch_size=self.config.trainer.batch_size,
-                                                                             validation_split=0.2,
+                                                                             validation_split=0.3,
                                                                              seed=42,
                                                                              subset='both',
                                                                         ) 
         
-        self.test = validation.shard(num_shards=2, index=0)
-        self.validation = validation.shard(num_shards=2, index=1)
         self.labels_names = np.array(self.train.class_names)
+
+        self.train = self.train.map(self.squeeze, tf.data.AUTOTUNE)
+        self.validation= self.validation.map(self.squeeze, tf.data.AUTOTUNE)
+
+        self.test = self.validation.shard(num_shards=2, index=0)
+        self.validation = self.validation.shard(num_shards=2, index=1)

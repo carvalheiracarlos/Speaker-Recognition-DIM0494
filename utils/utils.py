@@ -11,13 +11,13 @@ def get_args():
         help='The Configuration file'
     )
     argparser.add_argument(
-        '-g', '--generate',
-        help='Generate',
+        '-t', '--train',
+        help='Train Model',
         action='store_true'
     )
     argparser.add_argument(
-        '-n', '--convert',
-        help='Convert',
+        '-e', '--Evaluate',
+        help='Evaluate Model',
         action='store_true'
     )
     args = argparser.parse_args()

@@ -22,19 +22,18 @@ def main():
     data_loader = SpeakerDataLoader(config)
     data_loader.load_dataset()
     data_loader.inspect_dataset()
-    data_loader.squeeze_datasets()
     data_loader.inspect_spectrgoram()
     data_loader.process_dataset()
     data_loader.dataset_snapshot()
-
     data_shapes = data_loader.get_shapes()
-    print('Create the model.')
-    speaker_conv2d = SpeakerConv2D(config, data_shapes[0], data_shapes[1])
-    
-    print('Create the trainer')
-    speaker_conv2d_trainer = SpeakerConv2DModelTrainer(speaker_conv2d.model, data_loader.get_train_dataset(), data_loader.get_validation_dataset(), config)
-    print('Start training the model.')
-    speaker_conv2d_trainer.train()
+
+    if args.train:
+        print('Create the model.')
+        speaker_conv2d = SpeakerConv2D(config, data_shapes[0], data_shapes[1])
+        print('Create the trainer')
+        speaker_conv2d_trainer = SpeakerConv2DModelTrainer(speaker_conv2d.model, data_loader.get_train_dataset(), data_loader.get_validation_dataset(), config)
+        print('Start training the model.')
+        speaker_conv2d_trainer.train()
 
 
 if __name__ == '__main__':
