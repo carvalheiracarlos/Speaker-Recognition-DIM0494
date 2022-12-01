@@ -131,3 +131,5 @@ dmypy.json
 
 #Data Download
 data/
+callbacks/checkpoints/*
+callbacks/tensorboard/
