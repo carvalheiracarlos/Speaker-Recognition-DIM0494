@@ -5,7 +5,8 @@
 
 > pip install -r requirements.txt 
 
-> python main.py -c configs/speaker_conv2d_config.json
+> python main.py -c configs/speaker_conv2d_config.json -t -> for Training Steps.
+> python main.py -c configs/speaker_conv2d_config.json -e -> for Prediction
 
 > Files with old_ in name not used anymore. Probably will be dropped in futher updates
 
