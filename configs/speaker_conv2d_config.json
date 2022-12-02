@@ -6,7 +6,8 @@
     "root_folder": "./data/",
     "train": "./data/train.csv",
     "images": "./data/images/",
-    "audios": "./data/data/"
+    "audios": "./data/data/",
+    "predictions": "./callbacks/predictions.csv"
   },
   "model":{
     "learning_rate": 0.001,
@@ -21,10 +22,10 @@
     "verbose_training": true
   },
   "callbacks":{
-    "checkpoint_monitor": "val_loss",
-    "checkpoint_dir": "./callbacks/checkpoints/",
+    "checkpoint_monitor": "categorical_accuracy",
+    "model_weights": "./callbacks/checkpoints/speaker_conv2d_weights.h5",
     "csv_logger": "./callbacks/metrics.csv",
-    "checkpoint_mode": "min",
+    "checkpoint_mode": "max",
     "checkpoint_save_best_only": true,
     "checkpoint_save_weights_only": true,
     "checkpoint_verbose": true,

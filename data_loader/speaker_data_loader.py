@@ -16,6 +16,15 @@ class SpeakerDataLoader(BaseDataLoader):
         self.test = tf.data.Dataset.from_tensor_slices([])
         self.test_spectrograms = tf.data.Dataset.from_tensor_slices([])
 
+    def get_test_labels(self):
+        true_labels = np.concatenate([label for spectrograms, label in self.test_spectrograms], axis=0)
+        return true_labels
+
+    def fit_normalization_layer(self):
+        norm_layer = tf.keras.layers.Normalization()
+        norm_layer.adapt(data=self.train_spectrograms.map(map_func=lambda spec, label: spec))
+        return norm_layer
+
     def squeeze(self, audio, labels):
         audio = tf.squeeze(audio, axis=-1)
         return audio, labels

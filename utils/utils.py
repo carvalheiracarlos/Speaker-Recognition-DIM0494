@@ -16,7 +16,7 @@ def get_args():
         action='store_true'
     )
     argparser.add_argument(
-        '-e', '--Evaluate',
+        '-e', '--evaluate',
         help='Evaluate Model',
         action='store_true'
     )
