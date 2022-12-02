@@ -29,7 +29,6 @@ class SpeakerConv2D(BaseModel):
 
         self.model.add(Input(shape=self.input_shape))
         self.model.add(Resizing(64, 69)) 
-        #self.model.add(self.norm_layer)
 
         self.model.add(Conv2D(64, kernel_size=(8,8), strides=(2,2), activation='relu')) 
         self.model.add(MaxPooling2D())

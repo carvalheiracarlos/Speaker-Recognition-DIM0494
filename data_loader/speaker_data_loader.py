@@ -78,13 +78,13 @@ class SpeakerDataLoader(BaseDataLoader):
 
     def load_dataset(self):
         self.train, self.validation = tf.keras.utils.audio_dataset_from_directory(f'{self.config.location.audios}',
-                                                                             label_mode='categorical', 
-                                                                             output_sequence_length=16000,
-                                                                             batch_size=self.config.trainer.batch_size,
-                                                                             validation_split=0.3,
-                                                                             seed=42,
-                                                                             subset='both',
-                                                                        ) 
+                                                                                    label_mode='categorical', 
+                                                                                    output_sequence_length=16000,
+                                                                                    batch_size=self.config.trainer.batch_size,
+                                                                                    validation_split=0.3,
+                                                                                    seed=42,
+                                                                                    subset='both',
+                                                                                ) 
         
         self.labels_names = np.array(self.train.class_names)
 
