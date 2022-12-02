@@ -11,3 +11,12 @@
 > Files with old_ in name not used anymore. Probably will be dropped in futher updates
 
 
+For loading the dataset into the project, it must be in format:
+
+./data/data/class_0
+
+./data/data/class_1
+
+./data/data/class_2 ....
+
+If Needed check for ./utils/move_files.py
