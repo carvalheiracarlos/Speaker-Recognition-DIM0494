@@ -20,5 +20,15 @@ def get_args():
         help='Evaluate Model',
         action='store_true'
     )
+    argparser.add_argument(
+        '-d', '--debbug',
+        help='Print Functions',
+        action='store_true'
+    )
+    argparser.add_argument(
+        '-k', '--kaggle',
+        help='Load Kaggle Test Data',
+        action='store_true'
+    )
     args = argparser.parse_args()
     return args

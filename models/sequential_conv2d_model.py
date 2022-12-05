@@ -10,11 +10,10 @@ from keras.metrics import categorical_accuracy
 
 
 class SpeakerConv2D(BaseModel):
-    def __init__(self, config, input_shape, n_labels, norm_layer, load_weights=False):
+    def __init__(self, config, input_shape, n_labels, load_weights=False):
         super(SpeakerConv2D, self).__init__(config)
         self.input_shape = input_shape
         self.n_labels = n_labels
-        self.norm_layer = norm_layer
         self.load_weights= load_weights
         self.optimizer = Adam(learning_rate=self.config.model.learning_rate, 
                               beta_1=0.9, 

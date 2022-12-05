@@ -5,6 +5,8 @@
   "location": {
     "root_folder": "./data/",
     "train": "./data/train.csv",
+    "test": "./data/test.csv",
+    "kaggle": "./data/sample_submission.csv",
     "images": "./data/images/",
     "audios": "./data/data/",
     "predictions": "./callbacks/predictions.csv"

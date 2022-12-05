@@ -10,24 +10,20 @@ class SpeakerDataLoader(BaseDataLoader):
         super(SpeakerDataLoader, self).__init__(config)
         self.labels_names = []
         self.train = tf.data.Dataset.from_tensor_slices([]) 
-        self.train_spectrograms = tf.data.Dataset.from_tensor_slices([]) 
         self.validation = tf.data.Dataset.from_tensor_slices([])
-        self.validation_spectrograms = tf.data.Dataset.from_tensor_slices([])
         self.test = tf.data.Dataset.from_tensor_slices([])
-        self.test_spectrograms = tf.data.Dataset.from_tensor_slices([])
+        self.kaggle_test = tf.data.Dataset.from_tensor_slices([])
 
     def get_test_labels(self):
-        true_labels = np.concatenate([label for spectrograms, label in self.test_spectrograms], axis=0)
+        true_labels = np.concatenate([label for spectrograms, label in self.test], axis=0)
         return true_labels
 
-    def fit_normalization_layer(self):
-        norm_layer = tf.keras.layers.Normalization()
-        norm_layer.adapt(data=self.train_spectrograms.map(map_func=lambda spec, label: spec))
-        return norm_layer
-
-    def squeeze(self, audio, labels):
+    def squeeze(self, audio, labels=None):
         audio = tf.squeeze(audio, axis=-1)
-        return audio, labels
+        if not labels == None:
+            return audio, labels
+        else:
+            return audio
     
     def get_spectrogram(self, waveform):
         spectrogram = tf.signal.stft(waveform, frame_length=255, frame_step=128)
@@ -43,37 +39,38 @@ class SpeakerDataLoader(BaseDataLoader):
             print(f'Audio Shape(Batch Size, Max SampleRate)....: {audio.shape}')
             print(f'Inspectrogram Shape........................: {spectrogram.shape}')
 
+    def convert_dataset_to_spectrogram(self, dataset):
+        return dataset.map(map_func = lambda audio, label: (self.get_spectrogram(audio), label),
+                           num_parallel_calls=tf.data.AUTOTUNE)
+    
+    def process_dataset(self):
+        self.train = self.convert_dataset_to_spectrogram(self.train)
+        self.validation = self.convert_dataset_to_spectrogram(self.validation)
+        self.test = self.convert_dataset_to_spectrogram(self.test)
+
+    def dataset_snapshot(self):
+        print('Train Dataset................(Shapes and Length):', self.train.take(1), self.train.cardinality().numpy())
+        print('Validation Dataset...........(Shapes and Length):', self.validation.take(1), self.validation.cardinality().numpy())
+        print('Test Dataset.................(Shapes and Length):', self.test.take(1), self.test.cardinality().numpy())
+        print('Kaggle Dataset...............(Shapes and Length):', self.kaggle_test.take(1), self.kaggle_test.cardinality().numpy())
+
     def inspect_dataset(self):
         print('...........Audio Dataset..........')
         print(f'Classes Names.....: \n{self.labels_names}')
-        print(f'Element Inpect....: \n{self.train.element_spec}')
-
-    def convert_dataset_to_spectrogram(self, dataset):
-        return dataset.map(map_func = lambda audio, label: (self.get_spectrogram(audio), label),
-                           num_parallel_calls=tf.data.AUTOTUNE
-                        )
-    
-    def process_dataset(self):
-        self.train_spectrograms = self.convert_dataset_to_spectrogram(self.train)
-        self.validation_spectrograms = self.convert_dataset_to_spectrogram(self.validation)
-        self.test_spectrograms = self.convert_dataset_to_spectrogram(self.test)
-
-    def dataset_snapshot(self):
-        print('Train Dataset................(Shapes and Length):', self.train_spectrograms.take(1), self.train_spectrograms.cardinality().numpy())
-        print('Validation Dataset...........(Shapes and Length):', self.validation_spectrograms.take(1), self.validation_spectrograms.cardinality().numpy())
-        print('Test Dataset.................(Shapes and Length):', self.test_spectrograms.take(1), self.test_spectrograms.cardinality().numpy())
+        print(f'Train Element Inpect....: \n{self.train.element_spec}')
+        print(f'Kaggle Element Inpect....: \n{self.kaggle_test.element_spec}')
 
     def get_train_dataset(self):
-        return self.train_spectrograms.cache().shuffle(10000).prefetch(tf.data.AUTOTUNE)
+        return self.train.cache().shuffle(10000).prefetch(tf.data.AUTOTUNE)
     
     def get_validation_dataset(self):
-        return self.validation_spectrograms.cache().prefetch(tf.data.AUTOTUNE)
+        return self.validation.cache().prefetch(tf.data.AUTOTUNE)
 
     def get_test_dataset(self):
-        return self.test_spectrograms.cache().prefetch(tf.data.AUTOTUNE)
+        return self.test.cache().prefetch(tf.data.AUTOTUNE)
     
     def get_shapes(self):
-        for spectrogram, label in self.train_spectrograms.take(1):
+        for spectrogram, label in self.train.take(1):
             return (spectrogram[1].shape, label.shape)
 
     def load_dataset(self):
@@ -83,8 +80,7 @@ class SpeakerDataLoader(BaseDataLoader):
                                                                                     batch_size=self.config.trainer.batch_size,
                                                                                     validation_split=0.3,
                                                                                     seed=42,
-                                                                                    subset='both',
-                                                                                ) 
+                                                                                    subset='both') 
         
         self.labels_names = np.array(self.train.class_names)
 
@@ -93,3 +89,24 @@ class SpeakerDataLoader(BaseDataLoader):
 
         self.test = self.validation.shard(num_shards=2, index=0)
         self.validation = self.validation.shard(num_shards=2, index=1)
+
+    def load_kaggle_test(self):
+        test = pd.read_csv(self.config.location.test)
+        data = []
+        for wav_location in test.file_path:
+            raw_audio = tf.io.read_file(f'./data/{wav_location}')
+            wave, sr = tf.audio.decode_wav(raw_audio, desired_channels=-1, desired_samples=16000, name=None)
+            data.append(wave)
+
+        self.kaggle_test = tf.data.Dataset.from_tensor_slices(data).batch(32)
+        self.kaggle_test = self.kaggle_test.map(self.squeeze, tf.data.AUTOTUNE)
+        self.kaggle_test = self.kaggle_test.map(self.get_spectrogram, tf.data.AUTOTUNE)
+
+    def get_kaggle_test_dataset(self):
+        return self.kaggle_test.cache().prefetch(tf.data.AUTOTUNE)
+
+    def get_kaggle_test_shape(self):
+        for spectrogram in self.kaggle_test.take(1):
+            return spectrogram[1].shape
+
+
