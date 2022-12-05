@@ -9,6 +9,6 @@ def save_predictions_to_csv(config, predictions, true_labels):
                        .to_csv(config.location.predictions)
                 
 def save_predictions_to_kaggle(config, predictions):
-    kaggle_csv = pd.read_csv(config.location.kaggle)
-    kaggle_csv.speaker = predictions
-    kaggle_csv.speaker.to_csv(config.location.predictions)
+    kaggle_csv = pd.read_csv(config.location.kaggle, index_col=0)
+    kaggle_csv.speaker = np.argmax(predictions, axis=-1)
+    kaggle_csv.to_csv(config.location.kaggle)
